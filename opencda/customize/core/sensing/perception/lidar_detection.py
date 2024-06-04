@@ -28,13 +28,14 @@ def remove_ego(point_cloud: o3d.geometry.PointCloud):
     # the ego vehicle range and False for points inside.
     # pseudocode:
     # mask = points.x > -3 and points.x < 3 and points.y > -1.5 and points.y < 1.5
-
+    mask = (points[:, 0] < -3) | (points[:, 0] > 3) | (points[:, 1] < -1.5) | (points[:, 1] > 1.5)
     # END TODO
 
     # TODO: Get the indices of the points that are not inside the ego vehicle.
     # Use the boolean mask to find the indices of the points outside the ego vehicle range.
     # index = ...
 
+    index = np.where(mask)[0]
     # END TODO
 
     # Select the points outside the ego vehicle and return a new point cloud
@@ -57,6 +58,7 @@ def remove_ground(point_cloud: o3d.geometry.PointCloud,
     # This line of code is to filter out the lidar points hit on ground
     # TODO: Use the Open3D segment_plane function to find ground plane and inliers (ground points).
     # plane_model, inliers = ...
+    plane_model, inliers = point_cloud.segment_plane(distance_threshold=threshold, ransac_n=ransac_n, num_iterations=num_iterations)
     # END TODO
 
     inlier_cloud = point_cloud.select_by_index(inliers)
@@ -89,6 +91,7 @@ def clustering(point_cloud: o3d.geometry.PointCloud,
     # TODO: Perform clustering using DBSCAN from Open3D and obtain cluster labels.
     # The cluster should be converted to numpy array.
     # clusters = ...
+    clusters = np.asarray(point_cloud.cluster_dbscan(eps=1.2, min_points=min_cluster_size, print_progress=True))
     # END TODO
 
     # remove noise points that does not belong to any cluster. Those noise
@@ -128,6 +131,7 @@ def compute_3d_bounding_boxes(cluster_labels, point_cloud):
         # TODO: Extract points belonging to the current cluster
         # Hint: Use a boolean mask to select points with the current label
         # cluster_points = ...
+        cluster_points = np.asarray(point_cloud.points)[cluster_labels==label]
         # END TODO
 
         # Skip if there's only one point in the cluster
@@ -143,6 +147,8 @@ def compute_3d_bounding_boxes(cluster_labels, point_cloud):
 
         # TODO: Create a 2x2 rotation matrix using the estimated yaw angle
         # rot_mat = ...
+        rot_mat = np.array([[np.cos(yaw), -np.sin(yaw)],
+                            [np.sin(yaw), np.cos(yaw)]])
         # END TODO
 
         # Rotate the points using the estimated yaw angle

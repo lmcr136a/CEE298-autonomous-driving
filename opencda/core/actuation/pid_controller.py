@@ -77,7 +77,7 @@ class Controller:
 
         self.dynamic = args['dynamic']
 
-def dynamic_pid(self):
+    def dynamic_pid(self):
         """
         Compute kp, kd, ki based on current speed.
         """
@@ -87,7 +87,7 @@ def dynamic_pid(self):
 
         # TODO: Convert current speed (in m/s) to km/h
         # Hint: 1 m/s is equal to 3.6 km/h
-        current_speed_kmh = current_speed * 3.6
+        current_speed_kmh = self.current_speed * 3.6
 
         # Adjustments based on current speed
         if current_speed_kmh < 50:
