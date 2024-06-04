@@ -72,14 +72,23 @@ class RobustKalmanFilter(object):
                       [0, 0, 1.0, 0],
                       [0, 0, 0, 0]])
 
-        # TODO: Define the control input matrix B based on the current state and time_step
+        # --: Define the control input matrix B based on the current state and time_step
         # Hint: B should be a 4x2 matrix, where the first column represents the effect of velocity (v_current) on the state,
         # and the second column represents the effect of the imu_yaw_rate on the state.
         # Use the time_step and the yaw_prev (x[2, 0]) to compute the elements of the B matrix.
         # B = ...
 
-        # TODO: Calculate the predicted state using the motion model equation: X = F * X_prev + B * u
+        # --: Calculate the predicted state using the motion model equation: X = F * X_prev + B * u
         # x = ...
+        
+        # Define the control input matrix B based on the current state and time_step
+        B = np.array([[self.time_step * math.cos(x[2, 0]), 0],
+                      [self.time_step * math.sin(x[2, 0]), 0],
+                      [0, self.time_step],
+                      [1, 0]])
+
+        # Calculate the predicted state using the motion model equation: X = F * X_prev + B * u
+        x = F @ x + B @ u
 
         return x
 
@@ -97,13 +106,23 @@ class RobustKalmanFilter(object):
         H_res : np.array
             Huber function applied to the residual.
         """
-        # TODO: Calculate the absolute value of the residual
+        # --: Calculate the absolute value of the residual
         # abs_residual = ...
 
-        # TODO: The Huber function has two cases:
+        # --: The Huber function has two cases:
         # 1. If the absolute residual is less than or equal to delta, compute 0.5 * residual**2
         # 2. If the absolute residual is greater than delta, compute delta * (abs_residual - 0.5 * delta**2)
         # H_res = ...
+
+        # Calculate the absolute value of the residual
+        abs_residual = np.abs(residual)
+
+        # The Huber function has two cases:
+        # 1. If the absolute residual is less than or equal to delta, compute 0.5 * residual**2
+        # 2. If the absolute residual is greater than delta, compute delta * (abs_residual - 0.5 * delta**2)
+        H_res = np.where(abs_residual <= self.delta,
+                         0.5 * residual**2,
+                         self.delta * (abs_residual - 0.5 * self.delta**2))
         return H_res
 
 
