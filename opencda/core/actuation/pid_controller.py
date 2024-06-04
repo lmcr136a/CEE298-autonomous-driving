@@ -77,7 +77,7 @@ class Controller:
 
         self.dynamic = args['dynamic']
 
-    def dynamic_pid(self):
+def dynamic_pid(self):
         """
         Compute kp, kd, ki based on current speed.
         """
@@ -87,18 +87,19 @@ class Controller:
 
         # TODO: Convert current speed (in m/s) to km/h
         # Hint: 1 m/s is equal to 3.6 km/h
-        # current_speed_kmh = ...
+        current_speed_kmh = current_speed * 3.6
 
         # Adjustments based on current speed
         if current_speed_kmh < 50:
         # TODO: Assign the baseline PID gains for low-speed scenarios (< 50 km/h)
-        # kp_lon, kd_lon, ki_lon = ...
-        # kp_lat, kd_lat, ki_lat = ...
+            kp_lon, kd_lon, ki_lon = kp_lon_base, kd_lon_base, ki_lon_base
+            kp_lat, kd_lat, ki_lat = kp_lat_base, kd_lat_base, ki_lat_base
         else:
         # TODO: Adjust the baseline PID gains for high-speed scenarios (> 50 km/h)
         # Hint: Multiply the baseline gains by a factor, e.g., 1.2
-        # kp_lon, kd_lon, ki_lon = ...
-        # kp_lat, kd_lat, ki_lat = ...
+            factor = current_speed_kmh/50
+            kp_lon, kd_lon, ki_lon = kp_lon_base * factor, kd_lon_base * factor, ki_lon_base * factor
+            kp_lat, kd_lat, ki_lat = kp_lat_base * factor, kd_lat_base * factor, ki_lat_base * factor
 
         self._lon_k_p, self._lon_k_d, self._lon_k_i = kp_lon, kd_lon, ki_lon
         self._lat_k_p, self._lat_k_d, self._lat_k_i = kp_lat, kd_lat, ki_lat
